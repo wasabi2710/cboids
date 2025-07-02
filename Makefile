@@ -1,34 +1,41 @@
+# os suffix
+ifeq ($(OS),Windows_NT)
+    EXE := .exe
+else
+    EXE :=
+endif
+
 CC = gcc
-CLAGS = -Wall
-TARGET = bin/program
-TEST_TARGET = bin/test
+CFLAGS = -Wall
+TARGET = bin/program$(EXE)
+TEST_TARGET = bin/test$(EXE)
 SRCDIR = src
 LDLIBS = -lraylib -lm
 
-#all sources
 SRCS = $(wildcard $(SRCDIR)/*.c)
 SRCS := $(filter-out src/test.c, $(SRCS))
 TEST = $(SRCDIR)/test.c
 
-#build bin
+# ensure bin exists
 $(shell mkdir -p bin)
 
-#exec prog
+# build main program
 $(TARGET): $(SRCS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
+# build test
+$(TEST_TARGET): $(TEST)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+# run targets
 run: $(TARGET)
 	@echo "Running cboid..."
 	./$(TARGET)
-
-#run test
-$(TEST_TARGET): $(TEST)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
 
 test: $(TEST_TARGET)
 	@echo "Running test..."
 	./$(TEST_TARGET)
 
-#clean artifacts
+# clean
 clean:
-	rm -r $(TARGET)
+	$(RM) $(TARGET) $(TEST_TARGET)
